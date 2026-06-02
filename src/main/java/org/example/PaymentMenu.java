@@ -10,22 +10,12 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Scanner;
 
-/**
- * 결제 처리 메뉴 (명세 7-3) — UI/입력 전담.
- *   7-3-1 결제 / 7-3-2 결제내역 조회(카드별/고객별/전체 + 취소) / 7-3-3 통계
- * SQL은 PaymentDao 가 담당. 본 클래스는 Dao 호출 + 화면 출력만.
- *
- * Main 에서 호출:   PaymentMenu.showMenu(sc);
- *   - 전달받은 Scanner 를 정적 필드에 보관해, Main 과 같은 입력 스트림 사용.
- */
 public class PaymentMenu {
 
     private static Scanner sc;
 
-    /** 단독 실행용 (DAO 패턴만 따로 테스트할 때) */
     public static void main(String[] args) { showMenu(new Scanner(System.in)); }
 
-    // ===================== 메인 결제 처리 메뉴 =====================
     public static void showMenu(Scanner scanner) {
         sc = scanner;
         while (true) {
@@ -49,7 +39,6 @@ public class PaymentMenu {
         }
     }
 
-    // ===================== 7-3-1 결제 =====================
     private static void pay() {
         System.out.println("\n========================================");
         System.out.println("                결제");
@@ -70,12 +59,10 @@ public class PaymentMenu {
             System.out.println("   현재 잔여한도: " + won(card.현재잔여한도));
             System.out.println("   카드상태: " + card.카드상태);
 
-            // 즉시 거절 — 정지
             if (!"정상".equals(card.카드상태)) {
                 printReject("정지된 카드입니다. (카드상태: " + card.카드상태 + ")");
                 pause(); return;
             }
-            // 즉시 거절 — 유효기간 만료
             LocalDate exp = card.유효기간.toLocalDate();
             if (exp.isBefore(LocalDate.now())) {
                 String ym = exp.format(DateTimeFormatter.ofPattern("yyyy-MM"));
@@ -148,7 +135,6 @@ public class PaymentMenu {
         return 카드분류.endsWith("카드") ? 카드분류.substring(0, 카드분류.length() - 2) : 카드분류;
     }
 
-    // ===================== 7-3-2 결제내역 조회 (서브메뉴) =====================
     private static void inquiryMenu() {
         while (true) {
             System.out.println("\n========================================");
@@ -170,7 +156,6 @@ public class PaymentMenu {
         }
     }
 
-    // ---- 7-3-2-1 카드별 조회 + 취소 ----
     private static void inquiryByCard() {
         Long cardId = readLong("\n카드번호 입력 (0 입력 시 취소): ");
         if (cardId == null || cardId == 0) return;
@@ -222,7 +207,6 @@ public class PaymentMenu {
         pause();
     }
 
-    // ---- 7-3-2-2 고객별 조회 ----
     private static void inquiryByCustomer() {
         Long customerId = readLong("\n고객번호 입력 (0 입력 시 취소): ");
         if (customerId == null || customerId == 0) return;
@@ -248,7 +232,6 @@ public class PaymentMenu {
         pause();
     }
 
-    // ---- 7-3-2-3 전체 조회 ----
     private static void inquiryAll() {
         System.out.println("\n조회 범위 선택");
         System.out.println("1. 카드사 전체");
@@ -315,7 +298,6 @@ public class PaymentMenu {
         pause();
     }
 
-    // ===================== 7-3-3 결제 통계 조회 =====================
     private static void statistics() {
         Long customerId = readLong("\n고객번호 입력 (0 입력 시 취소): ");
         if (customerId == null || customerId == 0) return;
@@ -390,7 +372,6 @@ public class PaymentMenu {
         pause();
     }
 
-    // ===================== 공통 출력 (카드별/고객별 목록 + 합계 + 취소내역) =====================
     private static void printPaymentList(List<PaymentDao.PaymentRow> rows, String[] period, boolean includeCardCol) {
         final int W;
         String header;
@@ -459,8 +440,6 @@ public class PaymentMenu {
             System.out.println(dashes(W2));
         }
     }
-
-    // ===================== 입력/포맷 헬퍼 =====================
 
     private static int dispWidth(String s) {
         int w = 0;

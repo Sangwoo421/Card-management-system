@@ -8,21 +8,12 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * 결제 처리 메뉴(7-3) 전용 DAO.
- *  - 메뉴(PaymentMenu)는 화면/입력만, SQL은 전부 여기.
- *  - 결제·취소는 setAutoCommit(false) + commit/rollback 트랜잭션으로 묶어서 처리.
- *  - DB 연결은 호출자가 주입(new PaymentDao(conn)) — JDBCUtil 의 공유 connection 사용.
- */
 public class PaymentDao {
 
     private final Connection conn;
 
     public PaymentDao(Connection conn) { this.conn = conn; }
 
-    // ============================================================
-    //  데이터 컨테이너 (필드 직접 접근으로 단순화)
-    // ============================================================
     public static class CardInfo {
         public long  카드번호;
         public String 상품명, 카드분류, 명의자, 카드상태;
@@ -67,9 +58,6 @@ public class PaymentDao {
         public long 합계;
     }
 
-    // ============================================================
-    //  단건 조회
-    // ============================================================
     public CardInfo getCardInfo(long cardNo) throws SQLException {
         String sql =
             "SELECT c.카드번호, pr.상품명, pr.카드분류, cu.이름 AS 명의자, "
@@ -154,7 +142,6 @@ public class PaymentDao {
         }
     }
 
-    // 취소 처리 전 필요한 결제 단건 정보
     public PaymentRow getPayment(long paymentNo) throws SQLException {
         String sql =
             "SELECT p.결제번호, p.결제금액, p.카드번호, p.결제일시, p.결제상태, m.가맹점명 "
@@ -176,9 +163,6 @@ public class PaymentDao {
         }
     }
 
-    // ============================================================
-    //  목록 조회 (기간 필터: from/to는 'YYYY-MM-DD' 또는 null)
-    // ============================================================
     public List<PaymentRow> findByCard(long cardNo, String from, String to) throws SQLException {
         String sql =
             "SELECT p.결제번호, m.가맹점명, p.결제금액, p.할부개월수, p.결제일시, p.결제상태, p.취소일시 "
@@ -250,9 +234,6 @@ public class PaymentDao {
         return list;
     }
 
-    // ============================================================
-    //  결제 (트랜잭션) — INSERT + 잔여한도 차감
-    // ============================================================
     public PaymentRow processPayment(long amount, int installment, long cardNo, long merchantNo)
             throws SQLException {
         conn.setAutoCommit(false);
@@ -297,9 +278,6 @@ public class PaymentDao {
         }
     }
 
-    // ============================================================
-    //  취소 (트랜잭션) — UPDATE 결제상태='취소' + 잔여한도 복구
-    // ============================================================
     public boolean processCancel(long paymentNo) throws SQLException {
         conn.setAutoCommit(false);
         try {
@@ -337,9 +315,6 @@ public class PaymentDao {
         }
     }
 
-    // ============================================================
-    //  통계
-    // ============================================================
     public Stats getStatsByCustomer(long customerNo) throws SQLException {
         String sql =
             "SELECT COUNT(*) 총건, COALESCE(SUM(결제금액),0) 총액, "
@@ -434,9 +409,6 @@ public class PaymentDao {
         return list;
     }
 
-    // ============================================================
-    //  기간 필터 헬퍼
-    // ============================================================
     private static String periodClause(String from, String to) {
         return (from == null || to == null) ? "" : "AND p.결제일시 >= ? AND p.결제일시 <= ? ";
     }

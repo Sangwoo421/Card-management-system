@@ -96,11 +96,17 @@ public class PaymentMenu {
             if (amount == null) return;
             if (amount <= 0) { System.out.println("[오류] 결제금액은 0보다 커야 합니다."); return; }
 
-            Long inst = readLong("할부개월수 입력 (0=일시불, 2~12): ");
-            if (inst == null) return;
-            if (!(inst == 0 || (inst >= 2 && inst <= 12))) {
-                System.out.println("[오류] 할부개월수는 0(일시불) 또는 2~12 만 가능합니다.");
-                return;
+            Long inst;
+            if ("체크카드".equals(card.카드분류)) {
+                inst = 0L;
+                System.out.println("(체크카드는 일시불로 자동 처리됩니다)");
+            } else {
+                inst = readLong("할부개월수 입력 (0=일시불, 2~12): ");
+                if (inst == null) return;
+                if (!(inst == 0 || (inst >= 2 && inst <= 12))) {
+                    System.out.println("[오류] 할부개월수는 0(일시불) 또는 2~12 만 가능합니다.");
+                    return;
+                }
             }
 
             System.out.println("\n----------------------------------------");
@@ -513,11 +519,11 @@ public class PaymentMenu {
             System.out.println("전체 기간으로 조회합니다.");
             return null;
         }
-        System.out.println("  ┌─────────────────────────────────────────────┐");
-        System.out.println("  │  입력 형식: YYYYMMDD   (하이픈 생략 가능)    │");
-        System.out.println("  │  예시:      20260501  (= 2026-05-01)         │");
-        System.out.println("  │  종료일은 엔터만 치면 오늘로 설정됨           │");
-        System.out.println("  └─────────────────────────────────────────────┘");
+        System.out.println("  --------------- 기간 입력 안내 ---------------");
+        System.out.println("   · 형식:   YYYYMMDD  (하이픈 생략 가능)");
+        System.out.println("   · 예시:   20260501  (= 2026-05-01)");
+        System.out.println("   · 종료일은 엔터만 치면 오늘로 설정됨");
+        System.out.println("  ----------------------------------------------");
         LocalDate start = readDate("  시작일 입력: ", null);
         LocalDate end   = readDate("  종료일 입력: ", LocalDate.now());
         if (end.isBefore(start)) {

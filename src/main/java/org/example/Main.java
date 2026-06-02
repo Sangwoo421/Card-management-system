@@ -32,7 +32,7 @@ public class Main {
             switch (choice) {
                 case 1: customerMenu(); break;
                 case 2: System.out.println("카드 관리 - 준비 중"); break;
-                case 3: System.out.println("결제 처리 - 준비 중"); break;
+                case 3: PaymentMenu.showMenu(sc); break;
                 case 4: System.out.println("가맹점 관리 - 준비 중"); break;
                 case 5: System.out.println("카드상품 관리 - 준비 중"); break;
                 case 0:

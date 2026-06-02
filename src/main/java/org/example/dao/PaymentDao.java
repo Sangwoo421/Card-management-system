@@ -58,6 +58,7 @@ public class PaymentDao {
         public long 합계;
     }
 
+    // 카드 정보 조회 (상품명·분류·명의자·잔여한도·상태·유효기간)
     public CardInfo getCardInfo(long cardNo) throws SQLException {
         String sql =
             "SELECT c.카드번호, pr.상품명, pr.카드분류, cu.이름 AS 명의자, "
@@ -83,6 +84,7 @@ public class PaymentDao {
         }
     }
 
+    // 가맹점 정보 조회
     public MerchantInfo getMerchantInfo(long merchantNo) throws SQLException {
         String sql = "SELECT 가맹점번호, 가맹점명, 업종 FROM 가맹점 WHERE 가맹점번호 = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -98,6 +100,7 @@ public class PaymentDao {
         }
     }
 
+    // 고객 정보 + 보유 카드 수
     public CustomerInfo getCustomerInfo(long customerNo) throws SQLException {
         String sql =
             "SELECT cu.고객번호, cu.이름, COUNT(c.카드번호) AS 카드수 "
@@ -116,6 +119,7 @@ public class PaymentDao {
         }
     }
 
+    // 카드상품 목록
     public List<Product> findAllProducts() throws SQLException {
         List<Product> list = new ArrayList<>();
         String sql = "SELECT 상품번호, 상품명, 카드분류 FROM 카드상품 ORDER BY 상품번호";
@@ -131,6 +135,7 @@ public class PaymentDao {
         return list;
     }
 
+    // 카드 잔여한도만 조회
     public long getCardBalance(long cardNo) throws SQLException {
         try (PreparedStatement ps = conn.prepareStatement(
                 "SELECT 현재잔여한도 FROM 카드 WHERE 카드번호 = ?")) {
@@ -142,6 +147,7 @@ public class PaymentDao {
         }
     }
 
+    // 결제 단건 조회 (취소 처리 전 확인용)
     public PaymentRow getPayment(long paymentNo) throws SQLException {
         String sql =
             "SELECT p.결제번호, p.결제금액, p.카드번호, p.결제일시, p.결제상태, m.가맹점명 "
@@ -163,6 +169,7 @@ public class PaymentDao {
         }
     }
 
+    // 카드별 결제내역 (기간 옵션)
     public List<PaymentRow> findByCard(long cardNo, String from, String to) throws SQLException {
         String sql =
             "SELECT p.결제번호, m.가맹점명, p.결제금액, p.할부개월수, p.결제일시, p.결제상태, p.취소일시 "
@@ -176,6 +183,7 @@ public class PaymentDao {
         }
     }
 
+    // 고객별 결제내역
     public List<PaymentRow> findByCustomer(long customerNo, String from, String to) throws SQLException {
         String sql =
             "SELECT p.결제번호, p.결제일시, c.카드번호, pr.상품명, m.가맹점명, "
@@ -193,6 +201,7 @@ public class PaymentDao {
         }
     }
 
+    // 전체 결제내역 (상품번호 null=전체, 기간 옵션)
     public List<PaymentRow> findAll(Integer productNo, String from, String to) throws SQLException {
         StringBuilder sql = new StringBuilder(
             "SELECT p.결제번호, p.결제일시, c.카드번호, cu.이름 AS 명의자, m.가맹점명, "
@@ -234,6 +243,7 @@ public class PaymentDao {
         return list;
     }
 
+    // 결제: INSERT + 카드 한도 차감 (트랜잭션)
     public PaymentRow processPayment(long amount, int installment, long cardNo, long merchantNo)
             throws SQLException {
         conn.setAutoCommit(false);
@@ -278,6 +288,7 @@ public class PaymentDao {
         }
     }
 
+    // 취소: 상태=취소, 취소일시 기록 + 한도 복구 (트랜잭션)
     public boolean processCancel(long paymentNo) throws SQLException {
         conn.setAutoCommit(false);
         try {
@@ -315,6 +326,7 @@ public class PaymentDao {
         }
     }
 
+    // 고객별 결제 통계 (총건/총액/승인/취소)
     public Stats getStatsByCustomer(long customerNo) throws SQLException {
         String sql =
             "SELECT COUNT(*) 총건, COALESCE(SUM(결제금액),0) 총액, "
@@ -340,6 +352,7 @@ public class PaymentDao {
         }
     }
 
+    // 카드별 사용 내역 (고객 기준)
     public List<CardUsage> getCardUsageByCustomer(long customerNo) throws SQLException {
         String sql =
             "SELECT c.카드번호, pr.상품명, COUNT(p.결제번호) 건수, COALESCE(SUM(p.결제금액),0) 합계 "
@@ -363,6 +376,7 @@ public class PaymentDao {
         return list;
     }
 
+    // 할부개월수별 통계 (승인만)
     public List<InstallmentStat> getInstallmentStatsByCustomer(long customerNo) throws SQLException {
         String sql =
             "SELECT 할부개월수, COUNT(*) 건수, SUM(결제금액) 합계 "
@@ -385,6 +399,7 @@ public class PaymentDao {
         return list;
     }
 
+    // 가맹점 TOP N (승인 금액 기준)
     public List<MerchantStat> getTopMerchantsByCustomer(long customerNo, int limit) throws SQLException {
         String sql =
             "SELECT m.가맹점명, COUNT(*) 건수, SUM(p.결제금액) 합계 "

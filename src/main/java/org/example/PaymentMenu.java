@@ -16,6 +16,7 @@ public class PaymentMenu {
 
     public static void main(String[] args) { showMenu(new Scanner(System.in)); }
 
+    // 결제 처리 메인 메뉴
     public static void showMenu(Scanner scanner) {
         sc = scanner;
         while (true) {
@@ -39,6 +40,7 @@ public class PaymentMenu {
         }
     }
 
+    // 결제
     private static void pay() {
         System.out.println("\n========================================");
         System.out.println("                결제");
@@ -135,6 +137,7 @@ public class PaymentMenu {
         return 카드분류.endsWith("카드") ? 카드분류.substring(0, 카드분류.length() - 2) : 카드분류;
     }
 
+    // 결제내역 조회 서브메뉴
     private static void inquiryMenu() {
         while (true) {
             System.out.println("\n========================================");
@@ -156,6 +159,7 @@ public class PaymentMenu {
         }
     }
 
+    // 카드별 조회 + 취소
     private static void inquiryByCard() {
         Long cardId = readLong("\n카드번호 입력 (0 입력 시 취소): ");
         if (cardId == null || cardId == 0) return;
@@ -207,6 +211,7 @@ public class PaymentMenu {
         pause();
     }
 
+    // 고객별 조회
     private static void inquiryByCustomer() {
         Long customerId = readLong("\n고객번호 입력 (0 입력 시 취소): ");
         if (customerId == null || customerId == 0) return;
@@ -232,6 +237,7 @@ public class PaymentMenu {
         pause();
     }
 
+    // 전체 조회 (카드사 전체 / 상품별)
     private static void inquiryAll() {
         System.out.println("\n조회 범위 선택");
         System.out.println("1. 카드사 전체");
@@ -298,6 +304,7 @@ public class PaymentMenu {
         pause();
     }
 
+    // 결제 통계 조회
     private static void statistics() {
         Long customerId = readLong("\n고객번호 입력 (0 입력 시 취소): ");
         if (customerId == null || customerId == 0) return;
@@ -372,6 +379,7 @@ public class PaymentMenu {
         pause();
     }
 
+    // 결제 목록 표 출력 + 합계 + 취소내역
     private static void printPaymentList(List<PaymentDao.PaymentRow> rows, String[] period, boolean includeCardCol) {
         final int W;
         String header;
@@ -441,6 +449,7 @@ public class PaymentMenu {
         }
     }
 
+    // 한글 폭 보정: 한글=2칸, 영문=1칸
     private static int dispWidth(String s) {
         int w = 0;
         for (int i = 0; i < s.length(); ) {

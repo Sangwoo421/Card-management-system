@@ -27,7 +27,7 @@ public class Main {
                 case 1: CustomerView.customerMenu(); break;
                 case 2: cardMenu.cardMenu(); break;
                 case 3: PaymentMenu.showMenu(sc); break;
-                case 4: System.out.println("가맹점 관리 - 준비 중"); break;
+                case 4: MerchantMenu.merchantMenu(); break;
                 case 5: cardMenu.cardProductMenu(); break;
                 case 0:
                     System.out.println("프로그램을 종료합니다.");

@@ -4,6 +4,7 @@ import java.util.Scanner;
 
 public class Main {
     static Scanner sc = new Scanner(System.in);
+    static CardMenu cardMenu = new CardMenu(sc);
 
     public static void main(String[] args) {
         while (true) {
@@ -24,10 +25,10 @@ public class Main {
 
             switch (choice) {
                 case 1: CustomerView.customerMenu(); break;
-                case 2: System.out.println("카드 관리 - 준비 중"); break;
+                case 2: cardMenu.cardMenu(); break;
                 case 3: PaymentMenu.showMenu(sc); break;
                 case 4: System.out.println("가맹점 관리 - 준비 중"); break;
-                case 5: System.out.println("카드상품 관리 - 준비 중"); break;
+                case 5: cardMenu.cardProductMenu(); break;
                 case 0:
                     System.out.println("프로그램을 종료합니다.");
                     return;
